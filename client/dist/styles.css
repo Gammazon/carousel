@@ -1,0 +1,36 @@
+.frame {
+    display: inline-block;
+    width: 100%;
+}
+
+.image {
+    display: inline-block;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100px;
+    height: 100px;
+    padding: 10px;
+}
+
+.buttons {
+    display: inline-block;
+    width: 20%;
+}
+
+#button-left {
+    display: inline-block;
+}
+
+#button-right {
+    display: inline-block;
+    top: 50%;
+    margin-top: -24px;
+    z-index: 55;
+}
+
+/* overflow: hidden;
+    flex-flow: row;
+    align-content: space-between;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px; */
