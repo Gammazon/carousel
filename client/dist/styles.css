@@ -1,32 +1,70 @@
-.frame {
-    display: inline-block;
-    width: 100%;
+@font-face {
+    font-family: "Amazon-Ember";
+    src: url("./Amazon-Ember-Regular.ttf");
+    font-weight: bold;
 }
 
-.image {
+.frame {
+    display: flex;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 0px;
+}
+
+.image-frame {
     display: inline-block;
     flex-direction: row;
     flex-wrap: wrap;
-    width: 100px;
-    height: 100px;
-    padding: 10px;
+    overflow: hidden;
 }
 
 .buttons {
-    display: inline-block;
-    width: 20%;
+    display: flex;
+    align-self: center;
+    font-family: "Amazon-Ember";
+    background: #e7e9ec;
+    border-radius: 3px;
+    border-style: solid;
+    border-width: 1px;
+    font-size: 20px;
+    font-weight: bolder;
+    text-decoration-color: #A9A9A9;
+    line-height: 1em;
+    text-align: center;
 }
 
-#button-left {
-    display: inline-block;
+/* #buttonLeft {
+    display: flex;
+    flex-direction: row;
+    text-align: left;
+    height: 200%;
+}
+
+#buttonRight {
+    display: flex;
+    flex-direction: row;
+    text-align: left;
+    height: 200%;
+} */
+
+.image {
+    width: 120px;
+    height: 120px;
+    padding: 20px;
+}
+
+h1 {
+    font-family: "Amazon-Ember";
+    font-size: 20px;
+}
+
+/* #button-left {
 }
 
 #button-right {
-    display: inline-block;
-    top: 50%;
-    margin-top: -24px;
-    z-index: 55;
-}
+} */
 
 /* overflow: hidden;
     flex-flow: row;
