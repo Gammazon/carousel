@@ -8,8 +8,14 @@ app.use(express.static(path.join(__dirname, "../client/dist")));
 app.use(express.json());
 app.use(cors());
 
-app.get("/test", (req, res) => {
-    res.send("hit route TEST");
+app.post("/data", (req, res) => {
+    return db.getData()
+    .then(result => {
+        res.send(result);
+    })
+    .catch(error => {
+        res.send(error);
+    })
 });
 
 const port = 4000;

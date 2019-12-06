@@ -3,18 +3,16 @@ import axios from "axios";
 import Images from "./Images.jsx";
 import ButtonLeft from "./ButtonLeft.jsx";
 import ButtonRight from "./ButtonRight.jsx";
-import Prices from "./Prices.jsx";
-// import Price from "./Price.jsx";
 
 class App extends React.Component {
 	constructor() {
 		super();
 		this.state = {
-            currentProduct: 98,
+            currentProduct: 1,
             recommendedID: [],
-            recommendedPrices: [129.95, 14.99, 7.08, 16.82, 12.26],
+            recommendedPrices: [],
             recommendedNames: [],
-            count: 0,
+            allData: [],
             allIDs: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100]
         };
         this.clickLeft = this.clickLeft.bind(this);
@@ -22,6 +20,10 @@ class App extends React.Component {
         this.clickImage = this.clickImage.bind(this);
         this.findRecommendedRight = this.findRecommendedRight.bind(this);
         this.recommended = this.recommended.bind(this);
+        this.getData = this.getData.bind(this);
+        this.parseData1 = this.parseData1.bind(this);
+        this.parseData2 = this.parseData2.bind(this);
+        // this.parseDataHelper = this.parseDataHelper.bind(this);
     }
     
     componentDidMount() {
@@ -30,28 +32,19 @@ class App extends React.Component {
 
     clickLeft () {
         console.log("click-left!");
-        // let newCount = this.state.count--;
-        // this.setState({
-        //     count: newCount
-        // });
+        this.findRecommendedLeft();
     }
 
     clickRight() {
         console.log("click-right!");
-        // let newCount = this.state.count++;
-        // this.setState({
-        //     count: newCount
-        // });
+        this.findRecommendedRight();
     }
 
-    clickImage(event) {
-        console.log(event.target.id);
-    }
-
+    // determines 5 recommended product IDs
     recommended() {
         let newList = [];
         let start = this.state.currentProduct;
-        if (start < 5) {
+        if (start < 6) {
             for (let i = 1; i < 101; i++) {
                 if (i !== start) {
                     newList.push(i);
@@ -64,47 +57,181 @@ class App extends React.Component {
             for (let i = start + 1; i < 101; i++) {
                 newList.push(i);
             }
-            let length = newList.length;
-            for (let j = 1; j <= (5 - length); j++) {
+            for (let j = 1; newList.length < 5; j++) {
                 newList.push(j);
-                console.log(newList);
             }
-            console.log(newList);
         } else {
-            for (let i = start + 1; i < this.state.allIDs.length; i++) {
-                newList.push(i);
-                if (newList.length === 5) {
-                    break;
+            for (let k = start + 1; newList.length < 5; k++) {
+                newList.push(k);
+            }
+        }
+        console.log("initial recommendation", newList);
+        this.setState({
+            recommendedID: newList
+        }, () => {
+            this.getData();
+        });
+    }
+
+    parseData1(resultArray, refArray, category) {
+        console.log(resultArray[0][category]);
+        let resultObj = {};
+        for (let i = 0; i < refArray.length; i++) {
+            let index = refArray[i] - 1;
+            resultObj[refArray[i]] = resultArray[index][category];
+        }
+        return resultObj;
+    }
+
+    parseData2(obj) {
+        let array = this.state.recommendedID;
+        let elements = [];
+        for (let i = 0; i < array.length; i++) {
+            elements.push(obj[array[i]]);
+        }
+        return elements;
+    }
+
+    // retrieves data of recommended items from database
+    getData() {
+        axios.post("/data", {
+            recommendedID: this.state.recommendedID
+        })
+        .then(response => {
+            console.log(response.data);
+            this.setState({
+                allData: response.data
+            });
+            // setState productNames
+            return this.parseData1(response.data, this.state.recommendedID, "productName");
+        })
+        .then(result => {
+            console.log("results", result);
+            return this.parseData2(result);
+        })
+        .then(result => {
+            this.setState({
+                recommendedNames: result
+            })
+        })
+        .then(() => {
+            console.log(this.state.recommendedNames);
+        })
+        .then(()=> {
+            return this.parseData1(this.state.allData, this.state.recommendedID, "productPrice");
+        })
+        .then(result => {
+            console.log("results", result);
+            return this.parseData2(result);
+        })
+        .then(result => {
+            this.setState({
+                recommendedPrices: result
+            })
+        })
+        .then(() => {
+            console.log(this.state.recommendedPrices);
+        })
+        .catch(error => {
+            // todo: throw error when finaizing product
+            console.log(error);
+        });
+    }
+
+        // determines previous 5 recommended product IDs from current product
+    findRecommendedLeft() {
+        let currentProduct = this.state.currentProduct;
+        let newList = [];
+        let start = this.state.recommendedID[0];
+        if (start < 6) {
+            for (let i = 1; i < start; i++) {
+                if (i !== currentProduct) {
+                    newList.push(i);
                 }
             }
+            let length = newList.length;
+            if (length < 5) {
+                for (let j = 100; j >= 100 - (5 - length); j--) {
+                    if (j !== currentProduct) {
+                        newList.unshift(j);
+                    }
+                }
+            }
+            console.log("L-checkpoint1", newList);
+        } else if (start > 95) {
+            for (let i = start - 5; i < start; i++) {
+                if (i !== currentProduct) {
+                    newList.push(i);
+                }
+            }
+            let length = newList.length;
+            if (length < 5) {
+                for (let j = start - (5 + (5 - length)); newList.length < 5; j++) {
+                    if (j !== currentProduct) {
+                        newList.unshift(j);
+                    }
+                }
+            }
+            console.log("L-checkpoint2", newList);
+        } else {
+            for (let k = start - 1; k >= start - 5; k--) {
+                if (k !== currentProduct) {
+                    newList.unshift(k);
+                }
+            }
+            let length = newList.length;
+            for (let m = start - 6; newList.length < 5; m--) {
+                if (m !== currentProduct) {
+                    newList.unshift(m);
+                }
+            }
+            console.log("L-checkpoint3", newList);
+        }
+        this.setState({
+            recommendedID: newList
+        }, () => {
+            this.getData();
+        });
+    }
+
+    // determines next 5 recommended product IDs from current product
+    findRecommendedRight() {
+        let currentProduct = this.state.currentProduct;
+        let newList = [];
+        let start = this.state.recommendedID[0];
+        let end = this.state.recommendedID[4];
+        if (end > 95) {
+            for (let i = end + 1; i < 101; i++) {
+                if (i !== currentProduct) {
+                    newList.push(i);
+                }
+            }
+            let length = newList.length;
+            for (let j = 1; newList.length < 5; j++) {
+                if (j !== currentProduct) {
+                    newList.push(j);
+                }
+            }
+            console.log("R-checkpoint1", newList);
+        } else {
+            for (let k = (end + 1); newList.length < 5; k++) {
+                if (k !== currentProduct) {
+                    newList.push(k);
+                }
+            }
+            console.log("R-checkpoint2", newList);
         }
 
         this.setState({
             recommendedID: newList
+        }, () => {
+            this.getData();
         });
     }
 
-    findRecommendedRight() {
-        // let newList = [];
-        // let currentList = this.state.recommendedNames;
-        // let start = this.state.recommendedID[0];
-        // let end = this.state.recommendedID[4];
-        // if (this.state.currentProduct > 95) {
-            
-        // } else {
-        //     newList = this.state.allIDs.slice(start, end);
-        // }
-
-        // this.setState({
-        //     recommendedID: newList
-        // });
-        
+    clickImage(event) {
+        console.log(event.target.id);
     }
-    
-    // if left button is clicked, find 5 ids on the left of the very first id on the current list
-    // if right button is clicked, find 5 ids on the right of the bery last id on the current list
-    // you could use an array that contains all the ids
-    // or you could just use math
 
 	render() {
 		return( 
@@ -112,8 +239,13 @@ class App extends React.Component {
                 <h1 className='header'>Customers who bought this item also bought</h1>
                 <div className='frame'>
                     <ButtonLeft clickLeft={this.clickLeft} />
-                    <Images currentProduct={this.state.currentProduct} recommendedID={this.state.recommendedID} recommendedNames={this.state.recommendedNames} clickImage={this.clickImage} />
-                    <Prices recommendedID={this.state.recommendedID} recommendedPrices={this.state.recommendedPrices} />
+                    <Images 
+                        clickImage={this.clickImage} 
+                        currentProduct={this.state.currentProduct} 
+                        recommendedID={this.state.recommendedID} 
+                        recommendedNames={this.state.recommendedNames} 
+                        recommendedPrices={this.state.recommendedPrices} 
+                    />
                     <ButtonRight clickRight={this.clickRight} />    
                 </div>
             </div>
