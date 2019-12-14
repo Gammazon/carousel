@@ -4,6 +4,12 @@
     font-weight: bold;
 }
 
+.header {
+    font-family: "Amazon-Ember";
+    font-size: 20px;
+    color: #C45500;
+}
+
 .frame {
     display: flex;
     margin-block-start: 1em;
@@ -79,31 +85,45 @@
     overflow: hidden; */
 }
 
-h1 {
-    font-family: "Amazon-Ember";
-    font-size: 20px;
-}
-
-a {
+.name a {
     cursor: pointer;
 }
 
-a:link {
+.name a:link {
   color: #146EB4;
   text-decoration: none;
 }
 
-a:visited {
+.name a:visited {
   color: #0066c0;
 }
 
 /* mouse over link */
-a:hover {
+.name a:hover {
+  color: #C45500;
+  text-decoration: underline;
+}
+
+.price a {
+    cursor: pointer;
+}
+
+.price a:link {
+  color: #146EB4;
+  text-decoration: none;
+}
+
+.price a:visited {
+  color: #0066c0;
+}
+
+/* mouse over link */
+.price a:hover {
   color: #C45500;
   text-decoration: underline;
 }
 
 /* selected link */
-a:active {
+/* .price a:active {
   color: blue;
-}
+} */
