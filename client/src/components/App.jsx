@@ -12,7 +12,9 @@ class App extends React.Component {
             recommendedID: [],
             recommendedPrices: [],
             recommendedNames: [],
-            allData: []
+            recommendedRatings: [],
+            allData: [],
+            allRatings: []
         };
         
         this.clickLeft = this.clickLeft.bind(this);
@@ -26,10 +28,28 @@ class App extends React.Component {
         this.parseData1 = this.parseData1.bind(this);
         this.parseData2 = this.parseData2.bind(this);
         this.clickRecommended = this.clickRecommended.bind(this);
-    }
+        this.defaultState = this.defaultState.bind(this);
+        this.getRatings = this.getRatings.bind(this);
+        // this.getId = this.getId.bind(this);
+    }    
     
     componentDidMount() {
-        this.recommended();
+        let idText = window.location.search;
+        if (idText) {
+            let croppedId = idText.substring((idText.indexOf('=') + 1));
+            croppedId = Number(croppedId);
+            this.defaultState(croppedId);
+        } else {
+            this.defaultState();
+        }
+    }
+
+    defaultState(id = 1) {
+        this.setState({
+            currentProduct: id
+        }, () => {
+            this.recommended();
+        });
     }
 
     clickLeft () {
@@ -127,6 +147,32 @@ class App extends React.Component {
         return elements;
     }
 
+    // ! streamline ratings from Tim
+    getRatings() {
+        axios.get('http://gammazonreviews.us-east-2.elasticbeanstalk.com/comments/1')
+        .then(response => {
+            // array of objs
+            let temp = response.data[0].totalCounter;
+            this.setState({
+                allRatings: temp
+            })
+        })
+        .then(() => {
+            return this.parseData1(this.state.allRatings, this.state.recommendedID, "average");
+        })
+        .then(result => {
+            return this.parseData2(result);
+        })
+        .then(result => {
+            this.setState({
+                recommendedRatings: result
+            })
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
+
     // retrieves data of recommended items from database
     getData() {
         axios.post("http://carousel.us-east-2.elasticbeanstalk.com/data", {
@@ -158,6 +204,23 @@ class App extends React.Component {
                 recommendedPrices: result  
             });
         })
+        .then(() => {
+            this.getRatings();
+        })
+        // ! for db ratings
+        // .then(()=> {
+        //     return this.parseData1(this.state.allData, this.state.recommendedID, "productRating");
+        // })
+        // .then(result => {
+        //     return this.parseData2(result);
+        // })
+        // .then(result => {
+        //     this.setState({
+        //         recommendedRatings: result  
+        //     }, () => {
+        //         console.log(this.state.recommendedRatings);
+        //     })
+        // })
         .catch(error => {
             console.log(error);
         });
@@ -331,13 +394,12 @@ class App extends React.Component {
 
     // gets productID of recommended product
     clickRecommended(e) {
-        console.log(e.target.dataset.productid)
-        // let currentProduct = e.target.dataset.productid;
-        // this.setState({
-        //     currentProduct: currentProduct
-        // }, () => {
-        //     this.recommended();
-        // });
+        let id = Number(e.target.dataset.productid);
+        this.setState({
+            currentProduct: id
+        }, () => {
+                window.location.replace(`http://gammazon-env.edv8rtj88x.us-west-2.elasticbeanstalk.com/?id=${id}`);
+        });
     }
 
 	render() {
@@ -352,6 +414,7 @@ class App extends React.Component {
                         recommendedNames={this.state.recommendedNames} 
                         recommendedPrices={this.state.recommendedPrices} 
                         clickRecommended={this.clickRecommended} 
+                        recommendedRatings={this.state.recommendedRatings}
                         />
                     <ButtonRight clickRight={this.clickRight} />    
                 </div>
